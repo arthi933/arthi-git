@@ -8,6 +8,7 @@ class ExpenseClaim(models.Model):
 
     name = fields.Char(string='Reference', required=True, copy=False, default='New')
     employee_id = fields.Many2one('hr.employee', string='Employee', required=True)
+    user_id = fields.Many2one('res.users', string='Manager', required=True)
     company_id = fields.Many2one('res.company', string='Company', required=True, default=lambda self: self.env.company)
     currency_id = fields.Many2one('res.currency', string='Currency', related='company_id.currency_id', readonly=False)
     amount = fields.Monetary(string='Amount', required=True, currency_field='currency_id')
@@ -22,6 +23,18 @@ class ExpenseClaim(models.Model):
     approval_rule_id = fields.Many2one('expense.approval.rule', string='Approval Rule')
 
     approved_by = fields.Many2one('res.users', string='Approved By')
+    is_manager_approver = fields.Boolean('Is manager an approver')
+    is_approved_button = fields.Boolean(compute='_compute_approved_access', default=False)
+    
+    def _compute_approved_access(self):
+        for rec in self:
+            approved_user = rec.approver_line_ids.mapped('user_id')
+            if rec.is_manager_approver and self.env.user.id == rec.user_id.id:
+                approved_user = approved_user + rec.user_id
+            if  self.env.user in approved_user:
+                   rec.is_approved_button = True
+            else:
+                rec.is_approved_button = False
 
     @api.model
     def create(self, vals):
@@ -65,29 +78,49 @@ class ExpenseClaim(models.Model):
             pending = rec.approver_line_ids.sorted('sequence').filtered(lambda l: not l.approved)
             if not pending:
                 raise exceptions.UserError(_('No pending approver'))
-            current = pending[0]
-            current.approved = True
-            current.comment = comment
-            current.approved_by = approver_user or self.env.user
-            rec.message_post(body=_('Approved by %s')% (current.approved_by.name))
-            # evaluate conditional rules
-            if rec._check_auto_approval():
-                rec._finalize_approval()
-                return True
-            # move to next approver
-            next_pending = rec.approver_line_ids.sorted('sequence').filtered(lambda l: not l.approved)
-            if not next_pending:
+            
+            user_ids = rec.approver_line_ids.filtered(lambda l: l.approved_state != 'approved').mapped('user_id')
+            manager_approved_id = rec.approver_line_ids.filtered(lambda l: l.user_id.id == self.user_id.id).mapped('user_id')
+            if rec.is_manager_approver and not manager_approved_id:
+                next_sequence = max(rec.approver_line_ids.mapped('sequence'), default=0) + 1
+                rec.write({
+                    'approver_line_ids': [(0, 0, {
+                        'sequence': next_sequence,
+                        'user_id': rec.user_id.id,
+                        'approved': True,
+                        'approved_state': 'approved',
+                        'approved_by': approver_user or self.env.user
+                    })]
+                })
                 rec._finalize_approval()
             else:
-                # notify next
-                np = next_pending[0]
-                if np.user_id:
-                    np.user_id.partner_id.message_post(body=_('Expense %s awaits your approval')%rec.name)
+                if self.env.user in user_ids:
+                    current = pending[0]
+                    current.approved = True
+                    current.comment = comment
+                    current.approved_state= 'approved'
+                    current.approved_by = approver_user or self.env.user
+                    rec.message_post(body=_('Approved by %s')% (current.approved_by.name))
+                    # evaluate conditional rules
+                    if rec._check_auto_approval():
+                        rec._finalize_approval()
+                        return True
+                    # move to next approver
+                    next_pending = rec.approver_line_ids.sorted('sequence').filtered(lambda l: not l.approved)
+                    if not next_pending:
+                        rec._finalize_approval()
+                    else:
+                        # notify next
+                        np = next_pending[0]
+                        if np.user_id:
+                            np.user_id.partner_id.message_post(body=_('Expense %s awaits your approval')%rec.name)
         return True
 
     def action_reject(self, comment=None, approver_user=None):
         for rec in self:
             rec.state = 'rejected'
+            user_id = rec.approver_line_ids.filtered(lambda l: l.user_id.id == self.env.user.id)
+            user_id.update({'approved_state': 'rejected'})
             rec.message_post(body=_('Rejected: %s') % (comment or ''))
 
     def _check_auto_approval(self):
@@ -125,8 +158,15 @@ class ExpenseApproverLine(models.Model):
     expense_id = fields.Many2one('expense.claim', string='Expense')
     sequence = fields.Integer(default=1)
     user_id = fields.Many2one('res.users', string='Approver')
-    
-    
+    approved_state = fields.Selection(
+        [
+            ('pending', 'Pending'),
+            ('approved', 'Approved'),
+            ('rejected', 'Rejected')
+        ],
+        string='Status',
+        default='pending'
+    )
     approved = fields.Boolean(default=False)
     comment = fields.Text()
     approved_by = fields.Many2one('res.users')

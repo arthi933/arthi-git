@@ -11,14 +11,5 @@
 	      <field name="padding">4</field>
 	      <field name="company_id" eval="False"/>
 	    </record>
-	    <record id="group_expense_manager" model="res.groups">
-            <field name="name">Expense Manager</field>
-        </record>
-	    <record id="group_expense_financer" model="res.groups">
-            <field name="name">Expense Finance</field>
-        </record>
-        <record id="group_expense_director" model="res.groups">
-            <field name="name">Expense Director</field>
-        </record>
     </data>
 </odoo>

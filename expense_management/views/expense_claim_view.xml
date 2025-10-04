@@ -8,13 +8,14 @@
 	      <header>
 	      		<field name="state" widget="statusbar"/>
 	         	<button name="action_submit" type="object" string="Submit" class="btn-primary" invisible="state != 'draft'"/>
-	         	<button name="action_approve" type="object" string="Approve" invisible="state == 'approved'"/>
-	         	<button name="action_reject" type="object" string="Reject" invisible="state != 'approved'"/>
+	         	<button name="action_approve" type="object" string="Approve" invisible="state == 'approved' or not is_approved_button"/>
+	         	<button name="action_reject" type="object" string="Reject" invisible="state != 'approved' or not is_approved_button"/>
 	      </header>
 	        <sheet>
 	          <group>
 	            <field name="name"/>
 	            <field name="employee_id"/>
+	            <field name="user_id"/>
 	            <field name="approval_rule_id"/>
 	            <field name="company_id"/>
 	            <field name="amount"/>
@@ -22,15 +23,18 @@
 	            <field name="date"/>
 	            <field name="description"/>
 	            <field name="attachment_ids" widget="many2many_binary"/>
+	            <field name="is_manager_approver"/>
+	            <field name="is_approved_button" invisible="1"/>
 	          </group>
 	          <notebook>
 	            <page string="Approvers">
-	              <field name="approver_line_ids">
+	              <field name="approver_line_ids" readonly="1">
 	                <list editable="bottom">
 	                  <field name="sequence"/>
 	                  <field name="user_id"/>
 	                  <field name="approved"/>
-	                  <field name="comment"/>
+	                  <field name="approved_state"/>
+	                  <field name="comment" column_invisible="1"/>
 	                </list>
 	              </field>
 	            </page>
@@ -67,6 +71,6 @@
     </record>
     
     <!-- Link action to menu -->
-    <menuitem id="menu_action_expense" name="Expense Claims" parent="menu_expense" action="action_expense"/>
+    <menuitem id="menu_action_expense" name="Expense Claims" parent="expense_management.menu_expense" action="action_expense"/>
     
 </odoo>

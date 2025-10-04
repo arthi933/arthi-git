@@ -41,7 +41,7 @@
   <!-- Submenu -->
   <menuitem id="menu_approval_rules"
             name="Approval Rules"
-            parent="menu_expense"
+            parent="expense_management.menu_expense"
             action="action_approval_rules"
             sequence="2" />
 </odoo>
