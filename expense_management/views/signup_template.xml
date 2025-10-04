@@ -1,0 +1,33 @@
+<odoo>
+	<template id="country_field" inherit_id="auth_signup.fields"
+		name="Country selection for auth_signup">
+		<xpath expr="//div[@class='mb-3 field-confirm_password']"
+			position="after">
+			<div class="mb-3 field-country">
+				<label for="country">Country</label>
+				<select name="signup_country_id" id="signup_country_id"
+					class="form-control form-control-sm">
+					<t t-foreach="request.env['res.country'].sudo().search([])"
+						t-as="country">
+						<t t-if="country_index == 0">
+							<option value="" selected="1">Country Selection</option>
+						</t>
+						<option t-att-value="country.id">
+							<t t-esc="country.name" />
+						</option>
+					</t>
+
+				</select>
+			</div>
+		</xpath>
+	</template>
+	<template id="custome_signup_reset_password" inherit_id="auth_signup.login"
+		name="Custome Reset Password">
+		<xpath expr="//label[@for='password']/a[@t-attf-href='/web/reset_password?{{ keep_query() }}']" position="replace">
+			<a t-if="reset_password_enabled" class="btn btn-link btn-sm"
+				tabindex="1"
+				t-attf-href="/expense_management/custom_reset?{{ keep_query() }}">Reset
+				Password</a>
+		</xpath>
+	</template>
+</odoo>
