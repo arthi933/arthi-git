@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_expense_claim,expense_claim,model_expense_claim,base.group_user,1,1,1,1
+access_expense_approver_line,expense_approver_line,model_expense_approver_line,base.group_user,1,1,1,1
+access_expense_approval_rule,expense_approval_rule,model_expense_approval_rule,base.group_user,1,1,1,1

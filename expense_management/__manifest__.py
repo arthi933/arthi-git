@@ -6,8 +6,8 @@
     'license': "OPL-1",
     'website': 'http://www.srikeshinfotech.com',
     'depends': ['base','contacts', 'web', 'hr','hr_expense','mail'],
-    'data': [
-             ],
+    'data': ['views/expense_claim_view.xml',
+             'security/ir.model.access.csv'],
     'installable': True,
     'auto_install': False,
     'application': True,
