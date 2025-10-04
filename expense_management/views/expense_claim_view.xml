@@ -13,18 +13,22 @@
 	      </header>
 	        <sheet>
 	          <group>
-	            <field name="name"/>
-	            <field name="employee_id"/>
-	            <field name="user_id"/>
-	            <field name="approval_rule_id"/>
-	            <field name="company_id"/>
-	            <field name="amount"/>
-	            <field name="category"/>
-	            <field name="date"/>
-	            <field name="description"/>
-	            <field name="attachment_ids" widget="many2many_binary"/>
-	            <field name="is_manager_approver"/>
-	            <field name="is_approved_button" invisible="1"/>
+	          	<group>
+	          		<field name="name"/>
+		            <field name="employee_id"/>
+		            <field name="user_id"/>
+		            <field name="approval_rule_id"/>
+		            <field name="company_id"/>
+		            <field name="amount"/>
+	          	</group>
+	            <group>
+	            	<field name="category"/>
+	            	<field name="date"/>
+		            <field name="attachment_ids" widget="many2many_binary"/>
+		            <field name="is_manager_approver"/>
+		            <field name="description"/>
+		            <field name="is_approved_button" invisible="1"/>
+	            </group>
 	          </group>
 	          <notebook>
 	            <page string="Approvers">
