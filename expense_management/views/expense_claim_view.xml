@@ -6,21 +6,22 @@
 	    <field name="arch" type="xml">
 	      <form string="Expense Claim">
 	      <header>
-	         	<button name="action_submit" type="object" string="Submit" class="btn-primary" invisible="state == 'draft'"/>
-	         	<button name="action_approve" type="object" string="Approve" invisible="state == 'to_approve'"/>
-	         	<button name="action_reject" type="object" string="Reject" invisible="state == 'to_approve'"/>
+	      		<field name="state" widget="statusbar"/>
+	         	<button name="action_submit" type="object" string="Submit" class="btn-primary" invisible="state != 'draft'"/>
+	         	<button name="action_approve" type="object" string="Approve" invisible="state == 'approved'"/>
+	         	<button name="action_reject" type="object" string="Reject" invisible="state != 'approved'"/>
 	      </header>
 	        <sheet>
 	          <group>
 	            <field name="name"/>
 	            <field name="employee_id"/>
+	            <field name="approval_rule_id"/>
 	            <field name="company_id"/>
 	            <field name="amount"/>
 	            <field name="category"/>
 	            <field name="date"/>
 	            <field name="description"/>
 	            <field name="attachment_ids" widget="many2many_binary"/>
-	            <field name="state" readonly="1"/>
 	          </group>
 	          <notebook>
 	            <page string="Approvers">

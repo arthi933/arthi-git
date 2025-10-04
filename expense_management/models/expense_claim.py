@@ -26,7 +26,7 @@ class ExpenseClaim(models.Model):
     @api.model
     def create(self, vals):
         if vals.get('name','New') == 'New':
-            seq = self.env.ref('expense_management_hackathon.seq_expense', raise_if_not_found=False)
+            seq = self.env.ref('expense_management.seq_expense', raise_if_not_found=False)
             if seq:
                 vals['name'] = seq.next_by_id() or 'EXP/0000'
         res = super().create(vals)
@@ -42,7 +42,7 @@ class ExpenseClaim(models.Model):
             # notify first approver
             first = rec.approver_line_ids.filtered(lambda l: l.sequence==1)
             if first and first.user_id:
-                first.user_id.notify_info(message=_('Expense %s awaits your approval')%rec.name)
+                first.user_id.partner_id.message_post(body=_('Expense %s awaits your approval')%rec.name)
 
     def _populate_approver_lines(self):
         self.ensure_one()
@@ -82,7 +82,7 @@ class ExpenseClaim(models.Model):
                 # notify next
                 np = next_pending[0]
                 if np.user_id:
-                    np.user_id.notify_info(message=_('Expense %s awaits your approval')%rec.name)
+                    np.user_id.partner_id.message_post(body=_('Expense %s awaits your approval')%rec.name)
         return True
 
     def action_reject(self, comment=None, approver_user=None):

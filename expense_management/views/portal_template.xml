@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_my_expenses" name="My Expenses Portal" website="True">
+        <t t-call="website.layout">
+            <div class="container mt16 mb16">
+                <h2>My Expenses</h2>
+                
+                <!-- Expense Submission Form -->
+                <div class="card mb16">
+                    <div class="card-body">
+                        <form action="/expense/submit" method="POST">
+                            <div class="form-group">
+                                <label>Amount</label>
+                                <input type="number" step="0.01" name="amount" required="required" class="form-control"/>
+                            </div>
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select name="category" class="form-control">
+                                    <option value="travel">Travel</option>
+                                    <option value="meals">Meals</option>
+                                    <option value="office">Office</option>
+                                    <option value="other" selected="selected">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea name="description" class="form-control"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary mt8">Submit Expense</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Expense List Table -->
+                <div class="card">
+                    <div class="card-body">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Reference</th>
+                                    <th>Amount</th>
+                                    <th>Category</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="expenses" t-as="exp">
+                                    <tr>
+                                        <td><t t-esc="exp.name"/></td>
+                                        <td><t t-esc="exp.amount"/> <t t-esc="exp.currency_id.symbol"/></td>
+                                        <td><t t-esc="exp.category"/></td>
+                                        <td><t t-esc="exp.date"/></td>
+                                        <td>
+                                            <span t-if="exp.state=='draft'" class="badge bg-secondary">Draft</span>
+                                            <span t-if="exp.state=='to_approve'" class="badge bg-warning text-dark">To Approve</span>
+                                            <span t-if="exp.state=='approved'" class="badge bg-success">Approved</span>
+                                            <span t-if="exp.state=='rejected'" class="badge bg-danger">Rejected</span>
+                                        </td>
+                                    </tr>
+                                </t>
+                                <t t-if="not expenses">
+                                    <tr>
+                                        <td colspan="5" class="text-center">No expenses submitted yet.</td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </t>
+    </template>
+</odoo>
