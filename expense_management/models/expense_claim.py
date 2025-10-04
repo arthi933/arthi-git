@@ -156,6 +156,7 @@ class ExpenseApproverLine(models.Model):
     _description = 'Expense Approver Line'
 
     expense_id = fields.Many2one('expense.claim', string='Expense')
+    expense_sheet_id = fields.Many2one('hr.expense.sheet')
     sequence = fields.Integer(default=1)
     user_id = fields.Many2one('res.users', string='Approver')
     approved_state = fields.Selection(

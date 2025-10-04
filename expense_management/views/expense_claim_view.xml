@@ -61,7 +61,7 @@
     </field>
   </record>
 
-  <menuitem id="menu_expense_root" name="Expense Mgmt"/>
+  <menuitem id="menu_expense_root" name="Expense Management"/>
     
     <!-- Sub-menu under Expense Mgmt -->
     <menuitem id="menu_expense" name="Expenses" parent="menu_expense_root"/>
@@ -75,6 +75,6 @@
     </record>
     
     <!-- Link action to menu -->
-    <menuitem id="menu_action_expense" name="Expense Claims" parent="expense_management.menu_expense" action="action_expense"/>
+    <!-- <menuitem id="menu_action_expense" name="Expense Claims" parent="expense_management.menu_expense" action="action_expense"/> -->
     
 </odoo>

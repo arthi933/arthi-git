@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_expense_form_inherit" model="ir.ui.view">
+    <field name="name">hr.expense.sheet.view</field>
+    <field name="model">hr.expense.sheet</field>
+    <field name="inherit_id" ref="hr_expense.view_hr_expense_sheet_form"/>
+    <field name="arch" type="xml">
+     <xpath expr="//field[@name='user_id']" position="after">
+     	<field name="approval_rule_id" required="1"/>
+     	<field name="is_manager_approver"/>
+     </xpath>
+     <xpath expr="//button[@name='action_approve_expense_sheets']" position="attributes">
+     	<attribute name="invisible">not can_approve or state != 'submit' or not is_approved_button</attribute>
+     </xpath>
+     
+     <xpath expr="//button[@name='action_approve_expense_sheets']" position="after">
+     	<button name="action_reject" type="object" string="Reject" invisible="state != 'approve' or not is_approved_button"/>
+     </xpath>
+
+    
+      <xpath expr="//notebook/page[@name='expenses']" position="after">
+           <page string="Approvers">
+             <field name="approver_line_ids" readonly="1">
+               <list editable="bottom">
+                 <field name="sequence"/>
+                 <field name="user_id"/>
+                 <field name="approved"/>
+                 <field name="approved_state"/>
+                 <field name="comment" column_invisible="1"/>
+               </list>
+             </field>
+           </page>
+      </xpath>
+    </field>
+  </record>
+</odoo>
