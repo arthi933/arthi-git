@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api, _
+from odoo import models, fields, api, _,exceptions
 from odoo.exceptions import UserError
 
 class HrExpense(models.Model):
@@ -50,6 +50,7 @@ class HrExpense(models.Model):
             
     def action_approve_expense_sheets(self):
         for rec in self:
+            comment = None
             pending = rec.approver_line_ids.sorted('sequence').filtered(lambda l: not l.approved)
             if not pending:
                 raise exceptions.UserError(_('No pending approver'))
@@ -71,12 +72,11 @@ class HrExpense(models.Model):
                     current = pending[0]
                     current.approved = True
                     current.comment = comment
-                    current.approved_state= 'approved'
-                    # evaluate conditional rules
-                    if rec._check_auto_approval():
-                        rec._finalize_approval()
-                        return True                    
-        return True
+                    current.approved_state= 'approved'  
+        user_ids = rec.approver_line_ids.filtered(lambda l: l.approved_state != 'approved')
+        if user_ids == rec.approver_line_ids.filtered(lambda l: l.approved_state != 'approved'):
+            return super(HrExpense, self).action_approve_expense_sheets()
+        return  True
     
 
         
@@ -84,7 +84,6 @@ class HrExpense(models.Model):
         for rec in self:
             user_id = rec.approver_line_ids.filtered(lambda l: l.user_id.id == self.env.user.id)
             user_id.update({'approved_state': 'rejected'})
-            rec.message_post(body=_('Rejected: %s') % (comment or ''))
             
     def _check_auto_approval(self):
         # Check if approval_rule causes auto approval (percentage or specific approver)
